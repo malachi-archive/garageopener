@@ -13,13 +13,7 @@ extern "C"
   #include <esp8266.h>
   #include <esp/uart.h>
   #include <stdio.h>
-
-  extern const char *server_key;
-  extern const char *server_cert;
 }
-
-#include "MbedTLS.hpp"
-
 
 #define MAX_INPUT_LENGTH    50
 #define MAX_OUTPUT_LENGTH   100
@@ -138,92 +132,7 @@ void blinkenTask(void *pvParameters)
     }
 }
 
-// shamelessly lifted from https://github.com/SuperHouse/esp-open-rtos/blob/master/examples/tls_server/tls_server.c
-void serverTask(void *pvParameters)
-{
-    using namespace fact::mbedtls;
-
-    const char* pers = "tls_server";
-
-    puts("TLS server task starting...\n");
-
-    EntropyContext entropy;
-    SSLContext ssl;
-    X509Certificate srvcert;
-    PrivateKeyContext pkey;
-    SSLConfig config;
-    RandomGenerator rg;
-    NetContext server;
-
-    puts("\n  . Seeding the random number generator...");
-
-    int ret;
-
-    if((ret = rg.seed(entropy, pers)) != 0)
-    {
-        printf(" failed\n  ! mbedtls_ctr_drbg seed returned %d\n", ret);
-        abort();
-    }
-
-    puts(" ok\n");
-
-    puts("   . Loading the server certificate ...");
-
-    ret = srvcert.parse((uint8_t*)server_cert, strlen(server_cert)+1);
-    if(ret < 0)
-    {
-        printf(" failed\n  !  mbedtls_x509_crt_parse returned -0x%x\n\n", -ret);
-        abort();
-    }
-
-
-    printf(" ok (%d skipped)\n", ret);
-
-    printf("  . Loading the server private key ...");
-    ret = pkey.parseKey((uint8_t *)server_key, strlen(server_key)+1);
-    if(ret != 0)
-    {
-        printf(" failed\n ! mbedtls_pk_parse_key returned - 0x%x\n\n", -ret);
-        abort();
-    }
-
-    printf(" ok\n");
-
-    /*
-     * 2. Setup stuff
-     */
-    printf("  . Setting up the SSL/TLS structure...");
-
-    if((ret = config.defaults(MBEDTLS_SSL_IS_SERVER,
-                              MBEDTLS_SSL_TRANSPORT_STREAM,
-                              MBEDTLS_SSL_PRESET_DEFAULT)) != 0)
-    {
-        printf(" failed\n  ! mbedtls_ssl_config_defaults returned %d\n\n", ret);
-
-        ssl.reset();
-        server.free();
-        return;
-    }
-
-    printf(" ok\n");
-
-    config.setRng(rg);
-
-    if((ret = ssl.setup(config)) != 0)
-    {
-        printf(" failed\n  ! mbedtls_ssl_setup returned %d\n\n", ret);
-        ssl.reset();
-        server.free();
-        return;
-    }
-
-    for(;;)
-    {
-        taskYIELD();
-    }
-}
-
-
+void serverTask(void *pvParameters);
 
 extern "C" void user_init(void)
 {

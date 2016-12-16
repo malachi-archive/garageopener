@@ -15,6 +15,8 @@ extern "C"
   #include "mbedtls/certs.h"
 }
 
+// FIX: Some macros somewhere are messing with the "accept" and "write" methods
+// so I had to put underscores on them
 namespace fact
 {
     namespace mbedtls
@@ -24,16 +26,46 @@ namespace fact
           mbedtls_ssl_context context;
 
         public:
-          SSLContext() { mbedtls_ssl_init(&context); }
+            SSLContext() { mbedtls_ssl_init(&context); }
 
-          void reset() { mbedtls_ssl_session_reset(&context); }
+            void reset() { mbedtls_ssl_session_reset(&context); }
 
-          void handshake() { mbedtls_ssl_handshake(&context); }
+            int handshake()
+            {
+                return mbedtls_ssl_handshake(&context);
+            }
 
-          int setup(mbedtls_ssl_config& conf)
-          {
-              return mbedtls_ssl_setup(&context, &conf);
-          }
+            int setup(mbedtls_ssl_config& conf)
+            {
+                return mbedtls_ssl_setup(&context, &conf);
+            }
+
+            void setBIO(void* p_bio,
+                int (*f_send)(void *, const unsigned char *, size_t),
+                int (*f_recv)(void *, unsigned char *, size_t),
+                int (*f_recv_timeout)(void *, unsigned char *, size_t, uint32_t))
+            {
+                mbedtls_ssl_set_bio(&context, p_bio, f_send, f_recv, f_recv_timeout);
+            }
+
+            void setBIO(mbedtls_net_context& bio)
+            {
+                mbedtls_ssl_set_bio(&context, &bio,
+                    mbedtls_net_send,
+                    mbedtls_net_recv,
+                    NULL);
+            }
+
+            void closeNotify()
+            {
+                mbedtls_ssl_close_notify(&context);
+            }
+
+
+            int _write(const uint8_t* buf, size_t len)
+            {
+                return mbedtls_ssl_write(&context, buf, len);
+            }
         };
 
 
@@ -130,13 +162,27 @@ namespace fact
           NetContext() { mbedtls_net_init(&context); }
           //~NetContext() { mbedtls_net_free(&context); }
 
+          operator mbedtls_net_context&()
+          {
+              return context;
+          }
+
           void free() {  mbedtls_net_free(&context); }
 
           int bind(const char* bind_ip, const char* port, int proto)
           {
-            return mbedtls_net_bind(&context, bind_ip, port, proto);
+              return mbedtls_net_bind(&context, bind_ip, port, proto);
           }
-          //void accept() { }
+
+          int _accept(mbedtls_net_context& client_ctx, void* client_ip, size_t buf_size, size_t* ip_len)
+          {
+              return mbedtls_net_accept(&context, &client_ctx, client_ip, buf_size, ip_len);
+          }
+
+          int _accept(mbedtls_net_context& client_ctx)
+          {
+              return mbedtls_net_accept(&context, &client_ctx, NULL, 0, NULL);
+          }
         };
 
 
