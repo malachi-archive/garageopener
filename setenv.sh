@@ -1,6 +1,6 @@
 #!/bin/bash
 . ./bin/ask.sh
-ESPPORT=./bin/ftdi_finder.py
+ESPPORT=$(./bin/ftdi_finder.py)
 if ask "Set ESPPORT to $ESPPORT?" Y; then
   export ESPPORT
   echo Using FTDI port at $ESPPORT
