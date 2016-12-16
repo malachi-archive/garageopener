@@ -160,5 +160,5 @@ extern "C" void user_init(void)
 
   xTaskCreate(blinkenTask, "blinkenTask", 256, NULL, 2, NULL);
   xTaskCreate(vCommandConsoleTask, "test_task", 1024, NULL, 2, NULL);
-  xTaskCreate(serverTask, "web server", 1024, NULL, 2, NULL);
+  xTaskCreate(serverTask, "web server", 2048, NULL, 2, NULL);
 }

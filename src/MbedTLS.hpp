@@ -76,6 +76,8 @@ namespace fact
         public:
           PrivateKeyContext() { mbedtls_pk_init(&pk); }
 
+          operator mbedtls_pk_context&() { return pk; }
+
           int parseKey(const uint8_t* buf, size_t buflen,
             const uint8_t* pwd = NULL, size_t pwdlen = 0)
           {
@@ -90,6 +92,11 @@ namespace fact
 
         public:
           X509Certificate() { mbedtls_x509_crt_init(&certificate); }
+
+          operator mbedtls_x509_crt&()
+          {
+              return certificate;
+          }
 
           int parse(const uint8_t* buf, size_t buflen)
           {
@@ -130,6 +137,11 @@ namespace fact
           void setRng(mbedtls_ctr_drbg_context& ctr_drbg)
           {
               mbedtls_ssl_conf_rng(&config, mbedtls_ctr_drbg_random, &ctr_drbg);
+          }
+
+          int ownCert(mbedtls_x509_crt& cert, mbedtls_pk_context& pk)
+          {
+              return mbedtls_ssl_conf_own_cert(&config, &cert, &pk);
           }
 
           /*

@@ -198,6 +198,15 @@ void serverTask(void *pvParameters)
 
     printf(" ok\n");
 
+    mbedtls_x509_crt& _srvcert = srvcert;
+    config.caChain(*_srvcert.next);
+    //if( ( ret = mbedtls_ssl_conf_own_cert( &config, &srvcert, &pkey ) ) != 0 )
+    if( ( ret = config.ownCert(srvcert, pkey) ) != 0 )
+    {
+        printf( " failed\n  ! mbedtls_ssl_conf_own_cert returned %d\n\n", ret );
+        abort();
+    }
+
     config.setRng(rg);
 
     if((ret = ssl.setup(config)) != 0)
