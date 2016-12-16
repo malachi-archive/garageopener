@@ -1,5 +1,6 @@
 PROGRAM=main
-EXTRA_COMPONENTS = ../lib/FreeRTOS_CLI
+EXTRA_COMPONENTS=../lib/FreeRTOS_CLI
+#../lib/SmingPlatform
 
 #ESPBAUD = 460800
 #EXTRA_COMPONENTS = extras/spiffs

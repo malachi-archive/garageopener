@@ -1,0 +1,3 @@
+[submodule "ext/Sming"]
+	path = ext/Sming
+	url = https://github.com/malachi-iot/Sming.git
