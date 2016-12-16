@@ -19,7 +19,7 @@ extern "C"
 #define MAX_OUTPUT_LENGTH   100
 
 static const char * const pcWelcomeMessage =
-  "FreeRTOS command server.\r\nType Help to view a list of registered commands.\r\n";
+  "FreeRTOS command server " __DATE__ "@" __TIME__ ".\r\nType Help to view a list of registered commands.\r\n";
 
 // lifted from http://www.freertos.org/FreeRTOS-Plus/FreeRTOS_Plus_CLI/FreeRTOS_Plus_CLI_IO_Interfacing_and_Task.shtml
 extern "C" void vCommandConsoleTask( void *pvParameters )
