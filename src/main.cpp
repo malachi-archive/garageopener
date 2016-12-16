@@ -140,7 +140,7 @@ void serverTask(void *pvParameters);
 extern "C" void user_init(void)
 {
   uart_set_baud(0, 115200);
-  printf("SDK version:%s\n", sdk_system_get_sdk_version());
+  //printf("SDK version:%s\n", sdk_system_get_sdk_version());
 
 /*
 // C++ doesn't like these
@@ -149,7 +149,8 @@ extern "C" void user_init(void)
       .password = WIFI_PASS,
   }; */
 
-  struct sdk_station_config config = {
+
+  static struct sdk_station_config config = {
       WIFI_SSID,
       WIFI_PASS
   };

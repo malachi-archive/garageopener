@@ -74,15 +74,22 @@ namespace fact
           mbedtls_pk_context pk;
 
         public:
-          PrivateKeyContext() { mbedtls_pk_init(&pk); }
+            PrivateKeyContext() { mbedtls_pk_init(&pk); }
 
-          operator mbedtls_pk_context&() { return pk; }
+            operator mbedtls_pk_context&() { return pk; }
 
-          int parseKey(const uint8_t* buf, size_t buflen,
-            const uint8_t* pwd = NULL, size_t pwdlen = 0)
-          {
-            return mbedtls_pk_parse_key(&pk, buf, buflen, pwd, pwdlen);
-          }
+            int parseKey(const char* buf)
+            {
+                return mbedtls_pk_parse_key(&pk,
+                    // always remember to grab 0 as part of the buffer, apparently
+                    (const uint8_t*)buf, strlen(buf)+1, NULL, 0);
+            }
+
+            int parseKey(const uint8_t* buf, size_t buflen,
+                const uint8_t* pwd = NULL, size_t pwdlen = 0)
+            {
+                return mbedtls_pk_parse_key(&pk, buf, buflen, pwd, pwdlen);
+            }
         };
 
 
@@ -98,10 +105,16 @@ namespace fact
               return certificate;
           }
 
-          int parse(const uint8_t* buf, size_t buflen)
-          {
-            return mbedtls_x509_crt_parse(&certificate, buf, buflen);
-          }
+            int parse(const char* buf)
+            {
+                // always remember to grab 0 as part of the buffer, apparently
+                return parse((const uint8_t*)buf, strlen(buf)+1);
+            }
+
+            int parse(const uint8_t* buf, size_t buflen)
+            {
+                return mbedtls_x509_crt_parse(&certificate, buf, buflen);
+            }
         };
 
 

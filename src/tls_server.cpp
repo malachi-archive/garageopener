@@ -161,7 +161,7 @@ void serverTask(void *pvParameters)
 
     puts("   . Loading the server certificate ...");
 
-    ret = srvcert.parse((uint8_t*)server_cert, strlen(server_cert)+1);
+    ret = srvcert.parse(server_cert);
     if(ret < 0)
     {
         printf(" failed\n  !  mbedtls_x509_crt_parse returned -0x%x\n\n", -ret);
@@ -172,7 +172,7 @@ void serverTask(void *pvParameters)
     printf(" ok (%d skipped)\n", ret);
 
     printf("  . Loading the server private key ...");
-    ret = pkey.parseKey((uint8_t *)server_key, strlen(server_key)+1);
+    ret = pkey.parseKey(server_key);
     if(ret != 0)
     {
         printf(" failed\n ! mbedtls_pk_parse_key returned - 0x%x\n\n", -ret);
