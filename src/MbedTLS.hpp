@@ -29,6 +29,11 @@ namespace fact
           void reset() { mbedtls_ssl_session_reset(&context); }
 
           void handshake() { mbedtls_ssl_handshake(&context); }
+
+          int setup(mbedtls_ssl_config& conf)
+          {
+              return mbedtls_ssl_setup(&context, &conf);
+          }
         };
 
 
@@ -39,10 +44,10 @@ namespace fact
         public:
           PrivateKeyContext() { mbedtls_pk_init(&pk); }
 
-          void parseKey(const uint8_t* buf, size_t buflen,
+          int parseKey(const uint8_t* buf, size_t buflen,
             const uint8_t* pwd = NULL, size_t pwdlen = 0)
           {
-            mbedtls_pk_parse_key(&pk, buf, buflen, pwd, pwdlen);
+            return mbedtls_pk_parse_key(&pk, buf, buflen, pwd, pwdlen);
           }
         };
 
@@ -68,20 +73,31 @@ namespace fact
         public:
           SSLConfig() { mbedtls_ssl_config_init(&config); }
 
-          void defaults(int endpoint, int transport, int preset)
+          operator mbedtls_ssl_config&()
           {
-            mbedtls_ssl_config_defaults(&config, endpoint, transport, preset);
+              return config;
+          }
+
+          int defaults(int endpoint, int transport, int preset)
+          {
+              return mbedtls_ssl_config_defaults(&config, endpoint, transport, preset);
           }
 
 
           void caChain(mbedtls_x509_crt& ca_chain)
           {
-            mbedtls_ssl_conf_ca_chain(&config, &ca_chain, NULL);
+              mbedtls_ssl_conf_ca_chain(&config, &ca_chain, NULL);
           }
 
           void caChain(mbedtls_x509_crt& ca_chain, mbedtls_x509_crl& ca_crl)
           {
-            mbedtls_ssl_conf_ca_chain(&config, &ca_chain, &ca_crl);
+              mbedtls_ssl_conf_ca_chain(&config, &ca_chain, &ca_crl);
+          }
+
+
+          void setRng(mbedtls_ctr_drbg_context& ctr_drbg)
+          {
+              mbedtls_ssl_conf_rng(&config, mbedtls_ctr_drbg_random, &ctr_drbg);
           }
 
           /*
@@ -139,6 +155,11 @@ namespace fact
           int seed(mbedtls_entropy_context& entropy, const uint8_t* pers, size_t buflen)
           {
             return mbedtls_ctr_drbg_seed(&ctr_drbg, mbedtls_entropy_func, &entropy, pers, buflen);
+          }
+
+          operator mbedtls_ctr_drbg_context&()
+          {
+              return ctr_drbg;
           }
         };
     }
