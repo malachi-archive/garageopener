@@ -13,7 +13,10 @@ extern "C"
   #include <esp8266.h>
   #include <esp/uart.h>
   #include <stdio.h>
+
 }
+
+#include "ssid_config.h"
 
 #define MAX_INPUT_LENGTH    50
 #define MAX_OUTPUT_LENGTH   100
@@ -137,6 +140,23 @@ void serverTask(void *pvParameters);
 extern "C" void user_init(void)
 {
   uart_set_baud(0, 115200);
+  printf("SDK version:%s\n", sdk_system_get_sdk_version());
+
+/*
+// C++ doesn't like these
+  struct sdk_station_config config = {
+      .ssid = WIFI_SSID,
+      .password = WIFI_PASS,
+  }; */
+
+  struct sdk_station_config config = {
+      WIFI_SSID,
+      WIFI_PASS
+  };
+
+  /* required to call wifi_set_opmode before station_set_config */
+  sdk_wifi_set_opmode(STATION_MODE);
+  sdk_wifi_station_set_config(&config);
 
   xTaskCreate(blinkenTask, "blinkenTask", 256, NULL, 2, NULL);
   xTaskCreate(vCommandConsoleTask, "test_task", 1024, NULL, 2, NULL);
