@@ -1,5 +1,5 @@
 PROGRAM=main
-EXTRA_COMPONENTS=../lib/FreeRTOS_CLI
+EXTRA_COMPONENTS=../lib/FreeRTOS_CLI extras/mbedtls
 #../lib/SmingPlatform
 
 #ESPBAUD = 460800

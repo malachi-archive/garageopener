@@ -15,7 +15,8 @@ extern "C"
   #include <stdio.h>
 }
 
-#include "Station.h"
+#include "MbedTLS.hpp"
+
 
 #define MAX_INPUT_LENGTH    50
 #define MAX_OUTPUT_LENGTH   100
@@ -135,6 +136,25 @@ void blinkenTask(void *pvParameters)
 }
 
 
+void serverTask(void *pvParameters)
+{
+    using namespace fact::mbedtls;
+
+    const char* pers = "tls_server";
+
+    EntropyContext entropy;
+    SSLContext ssl;
+    X509Certificate srvcert;
+    PrivateKeyContext pkey;
+    SSLConfig config;
+    RandomGenerator rg;
+
+    rg.seed(entropy, pers);
+
+    for(;;) {}
+}
+
+
 
 extern "C" void user_init(void)
 {
@@ -142,4 +162,5 @@ extern "C" void user_init(void)
 
   xTaskCreate(blinkenTask, "blinkenTask", 256, NULL, 2, NULL);
   xTaskCreate(vCommandConsoleTask, "test_task", 1024, NULL, 2, NULL);
+  xTaskCreate(serverTask, "web server", 1024, NULL, 2, NULL);
 }
