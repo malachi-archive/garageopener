@@ -1,3 +1,4 @@
 src/build
 src/firmware
 ssid_config.h
+lib/SmingPlatform/src_rsync
