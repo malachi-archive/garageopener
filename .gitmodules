@@ -4,3 +4,6 @@
 [submodule "lib/FreeRTOS_cpp/FreeRTOScpp"]
 	path = lib/FreeRTOS_cpp/FreeRTOScpp
 	url = https://github.com/richard-damon/FreeRTOScpp.git
+[submodule "lib/mbedos/mbed-os"]
+	path = lib/mbedos/mbed-os
+	url = https://github.com/ARMmbed/mbed-os.git

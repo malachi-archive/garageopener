@@ -18,6 +18,8 @@ extern "C"
 #undef write
 #undef read
 
+#include <netsocket/EthInterface.h>
+
 #include <TaskCPP.h>
 #include "main.h"
 //#include <iostream>
