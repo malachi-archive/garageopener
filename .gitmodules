@@ -1,3 +1,6 @@
 [submodule "ext/Sming"]
 	path = ext/Sming
 	url = https://github.com/malachi-iot/Sming.git
+[submodule "lib/FreeRTOS_cpp/FreeRTOScpp"]
+	path = lib/FreeRTOS_cpp/FreeRTOScpp
+	url = https://github.com/richard-damon/FreeRTOScpp.git

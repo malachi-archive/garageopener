@@ -16,8 +16,9 @@ extern "C"
 
 }
 
+#include <TaskCPP.h>
+
 #include "ssid_config.h"
-#include "Debug.h"
 
 #define MAX_INPUT_LENGTH    50
 #define MAX_OUTPUT_LENGTH   100
