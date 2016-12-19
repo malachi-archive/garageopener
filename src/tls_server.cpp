@@ -29,10 +29,9 @@ extern "C"
 
 
 #include "MbedTLS.hpp"
+#include "main.h"
 
 using namespace fact::mbedtls;
-
-extern SemaphoreHandle_t wifi_alive;
 
 const char* PORT = "800";
 
@@ -43,7 +42,7 @@ void serverLoop(SSLContext& ssl)
 {
     for(;;)
     {
-        while(xSemaphoreTake(wifi_alive, 1000 / portTICK_PERIOD_MS) == pdFALSE)
+        while(wifi_alive.take(1000 / portTICK_PERIOD_MS) == pdFALSE)
         {
           puts("Waiting for WiFi");
         }

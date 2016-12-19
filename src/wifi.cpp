@@ -27,9 +27,10 @@ extern "C"
   extern const char *server_cert;
 }
 
+#include "main.h"
 #include "ssid_config.h"
 
-SemaphoreHandle_t wifi_alive;
+Semaphore wifi_alive("WiFi available");
 
 // lifted from https://github.com/SuperHouse/esp-open-rtos/blob/master/examples/mqtt_client/mqtt_client.c
 void wifi_task(void *pvParameters)
@@ -72,12 +73,12 @@ void wifi_task(void *pvParameters)
         }
         if (status == STATION_GOT_IP) {
             printf("WiFi: Connected\n\r");
-            xSemaphoreGive( wifi_alive );
+            wifi_alive.give();
             taskYIELD();
         }
 
         while ((status = sdk_wifi_station_get_connect_status()) == STATION_GOT_IP) {
-            xSemaphoreGive( wifi_alive );
+            wifi_alive.give();
             taskYIELD();
         }
         printf("WiFi: disconnected\n\r");

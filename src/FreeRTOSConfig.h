@@ -8,7 +8,7 @@
 #define configUSE_PREEMPTION 0
 
 /* Blink doesn't really need a lot of stack space! */
-#define configMINIMAL_STACK_SIZE 128
+//#define configMINIMAL_STACK_SIZE 128
 
 /* For CLI config */
 /* Matching MAX_OUTPUT_LENGTH in main.cpp until I understand the difference better */

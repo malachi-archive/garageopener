@@ -23,6 +23,7 @@ extern "C"
 }
 
 #include <TaskCPP.h>
+#include "main.h"
 
 #define MAX_INPUT_LENGTH    50
 #define MAX_OUTPUT_LENGTH   100
@@ -130,8 +131,6 @@ static char pcOutputString[ MAX_OUTPUT_LENGTH ], pcInputString[ MAX_INPUT_LENGTH
 
 const int gpio = 2;
 
-extern SemaphoreHandle_t wifi_alive;
-
 void blinkenTask(void *pvParameters)
 {
     gpio_enable(gpio, GPIO_OUTPUT);
@@ -151,12 +150,13 @@ extern "C" void user_init(void)
   uart_set_baud(0, 115200);
   //printf("SDK version:%s\n", sdk_system_get_sdk_version());
 
-  vSemaphoreCreateBinary(wifi_alive);
-  
   xTaskCreate(wifi_task, "wifi", 1024, NULL, 2, NULL);
   // It looks like prio 1 is an idle task, not just 0 - setting
   // blinkenTask to prio 1 = it gets fully blocked out by web server task
   xTaskCreate(blinkenTask, "blinkenTask", 256, NULL, 2, NULL); 
   //xTaskCreate(vCommandConsoleTask, "test_task", 1024, NULL, 4, NULL);
-  xTaskCreate(serverTask, "web server", 2048, NULL, 3, NULL);
+  // Odd, if I set this to task prio 3 or higher, handshaking phase crashes and
+  // restarts the device.  I'm getting the feeling LWIP is very much
+  // not a thread safe situation...
+  xTaskCreate(serverTask, "web server", 2048, NULL, 2, NULL);
 }
