@@ -32,6 +32,7 @@ extern "C"
 
 using namespace fact::mbedtls;
 
+extern SemaphoreHandle_t wifi_alive;
 
 const char* PORT = "800";
 
@@ -42,6 +43,11 @@ void serverLoop(SSLContext& ssl)
 {
     for(;;)
     {
+        while(xSemaphoreTake(wifi_alive, 1000 / portTICK_PERIOD_MS) == pdFALSE)
+        {
+          puts("Waiting for WiFi");
+        }
+        
         // these all have to live up here because when C++ uses gotos it is
         // strict about where autos are allocated
         struct sockaddr_in peer_addr;

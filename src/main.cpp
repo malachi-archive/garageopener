@@ -14,11 +14,15 @@ extern "C"
   #include <esp/uart.h>
   #include <stdio.h>
 
+  #include "lwip/err.h"
+  #include "lwip/sockets.h"
+  #include "lwip/sys.h"
+  #include "lwip/netdb.h"
+  #include "lwip/dns.h"
+  #include "lwip/api.h"
 }
 
 #include <TaskCPP.h>
-
-#include "ssid_config.h"
 
 #define MAX_INPUT_LENGTH    50
 #define MAX_OUTPUT_LENGTH   100
@@ -126,6 +130,8 @@ static char pcOutputString[ MAX_OUTPUT_LENGTH ], pcInputString[ MAX_INPUT_LENGTH
 
 const int gpio = 2;
 
+extern SemaphoreHandle_t wifi_alive;
+
 void blinkenTask(void *pvParameters)
 {
     gpio_enable(gpio, GPIO_OUTPUT);
@@ -138,30 +144,19 @@ void blinkenTask(void *pvParameters)
 }
 
 void serverTask(void *pvParameters);
+void  wifi_task(void *pvParameters);
 
 extern "C" void user_init(void)
 {
   uart_set_baud(0, 115200);
   //printf("SDK version:%s\n", sdk_system_get_sdk_version());
 
-/*
-// C++ doesn't like these
-  struct sdk_station_config config = {
-      .ssid = WIFI_SSID,
-      .password = WIFI_PASS,
-  }; */
-
-
-  static struct sdk_station_config config = {
-      WIFI_SSID,
-      WIFI_PASS
-  };
-
-  /* required to call wifi_set_opmode before station_set_config */
-  sdk_wifi_set_opmode(STATION_MODE);
-  sdk_wifi_station_set_config(&config);
-
-  xTaskCreate(blinkenTask, "blinkenTask", 256, NULL, 2, NULL);
-  xTaskCreate(vCommandConsoleTask, "test_task", 1024, NULL, 2, NULL);
-  xTaskCreate(serverTask, "web server", 2048, NULL, 2, NULL);
+  vSemaphoreCreateBinary(wifi_alive);
+  
+  xTaskCreate(wifi_task, "wifi", 1024, NULL, 2, NULL);
+  // It looks like prio 1 is an idle task, not just 0 - setting
+  // blinkenTask to prio 1 = it gets fully blocked out by web server task
+  xTaskCreate(blinkenTask, "blinkenTask", 256, NULL, 2, NULL); 
+  //xTaskCreate(vCommandConsoleTask, "test_task", 1024, NULL, 4, NULL);
+  xTaskCreate(serverTask, "web server", 2048, NULL, 3, NULL);
 }
