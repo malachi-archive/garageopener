@@ -62,7 +62,7 @@ namespace fact
             }
 
 
-            int _write(const uint8_t* buf, size_t len)
+            int write(const uint8_t* buf, size_t len)
             {
                 return mbedtls_ssl_write(&context, buf, len);
             }
@@ -199,12 +199,12 @@ namespace fact
               return mbedtls_net_bind(&context, bind_ip, port, proto);
           }
 
-          int _accept(mbedtls_net_context& client_ctx, void* client_ip, size_t buf_size, size_t* ip_len)
+          int accept(mbedtls_net_context& client_ctx, void* client_ip, size_t buf_size, size_t* ip_len)
           {
               return mbedtls_net_accept(&context, &client_ctx, client_ip, buf_size, ip_len);
           }
 
-          int _accept(mbedtls_net_context& client_ctx)
+          int accept(mbedtls_net_context& client_ctx)
           {
               return mbedtls_net_accept(&context, &client_ctx, NULL, 0, NULL);
           }

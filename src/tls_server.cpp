@@ -28,7 +28,13 @@ extern "C"
 }
 
 
+// lwip defines, not actually used here and collide with 
+// my wrapper (and probably other stuff too)
+#undef accept
+#undef write
+
 #include "MbedTLS.hpp"
+
 #include "main.h"
 
 using namespace fact::mbedtls;
@@ -65,7 +71,7 @@ void serverLoop(SSLContext& ssl)
 
         printf(" ok\n");
 
-        ret=server._accept(client);
+        ret=server.accept(client);
 
         if( ret != 0 ){
             printf(" Failed to accept connection. Restarting.\n");
@@ -104,7 +110,7 @@ void serverLoop(SSLContext& ssl)
                           ip4_addr1(&peer_addr.sin_addr), ip4_addr2(&peer_addr.sin_addr),
                           ip4_addr3(&peer_addr.sin_addr), ip4_addr4(&peer_addr.sin_addr),
                           peer_addr.sin_port, xPortGetFreeHeapSize());
-        while((ret = ssl._write(buf, len)) <= 0)
+        while((ret = ssl.write(buf, len)) <= 0)
         {
             if(ret != MBEDTLS_ERR_SSL_WANT_READ && ret != MBEDTLS_ERR_SSL_WANT_WRITE)
             {

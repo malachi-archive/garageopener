@@ -13,17 +13,14 @@ extern "C"
   #include <esp8266.h>
   #include <esp/uart.h>
   #include <stdio.h>
-
-  #include "lwip/err.h"
-  #include "lwip/sockets.h"
-  #include "lwip/sys.h"
-  #include "lwip/netdb.h"
-  #include "lwip/dns.h"
-  #include "lwip/api.h"
 }
+
+#undef write
+#undef read
 
 #include <TaskCPP.h>
 #include "main.h"
+//#include <iostream>
 
 #define MAX_INPUT_LENGTH    50
 #define MAX_OUTPUT_LENGTH   100
@@ -148,6 +145,10 @@ void  wifi_task(void *pvParameters);
 extern "C" void user_init(void)
 {
   uart_set_baud(0, 115200);
+  
+  // linker can't resolve this, even though compiler can
+  //std::cout << "\r\nCOUT test";
+  
   //printf("SDK version:%s\n", sdk_system_get_sdk_version());
 
   xTaskCreate(wifi_task, "wifi", 1024, NULL, 2, NULL);
