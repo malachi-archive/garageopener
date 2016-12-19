@@ -4,3 +4,6 @@
 [submodule "lib/FreeRTOS_cpp/FreeRTOScpp"]
 	path = lib/FreeRTOS_cpp/FreeRTOScpp
 	url = https://github.com/richard-damon/FreeRTOScpp.git
+[submodule "lib/libcli/src"]
+	path = lib/libcli/src
+	url = https://github.com/dparrish/libcli.git

@@ -144,9 +144,11 @@ void blinkenTask(void *pvParameters)
 
 void serverTask(void *pvParameters);
 void  wifi_task(void *pvParameters);
+extern "C" void __cli_init();
 
 extern "C" void user_init(void)
 {
+    __cli_init();
   uart_set_baud(0, 115200);
   //printf("SDK version:%s\n", sdk_system_get_sdk_version());
 
