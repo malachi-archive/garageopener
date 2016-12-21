@@ -7,3 +7,6 @@
 [submodule "ext/mbedtlscpp"]
 	path = ext/mbedtlscpp
 	url = https://github.com/malachi-iot/mbedtlscpp.git
+[submodule "lib/util.embedded/util.embedded"]
+	path = lib/util.embedded/util.embedded
+	url = https://github.com/malachib/util.embedded.git
