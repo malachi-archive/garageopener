@@ -4,3 +4,6 @@
 [submodule "lib/FreeRTOS_cpp/FreeRTOScpp"]
 	path = lib/FreeRTOS_cpp/FreeRTOScpp
 	url = https://github.com/richard-damon/FreeRTOScpp.git
+[submodule "ext/mbedtlscpp"]
+	path = ext/mbedtlscpp
+	url = https://github.com/malachi-iot/mbedtlscpp.git
