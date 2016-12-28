@@ -94,23 +94,94 @@ public:
 
 bool _isDelimiter(const char* delimiters, char input)
 {
-  const char* d = delimiters;
+    const char* d = delimiters;
 
-  ASSERT(input != 0, "Input should not be zero");
-  
-  if(input == 0) return true;
+    ASSERT(delimiters, "Delimiters cannot be NULL");
+    
+    if(input == 0) return true;
 
-  while(*d)
-  {
-    if(input == *d)
-      return true;
+    while(*d)
+    {
+        if(input == *d)
+            return true;
 
-    d++;
-  }
+        d++;
+    }
 
-  return false;
+    return false;
 }
 
+
+struct strntok_context
+{
+    const char* baseline;
+    size_t len;
+
+    bool strntok(const char* delimiters, const char** output, size_t* len);
+};
+
+
+// Not working yet "conventional" version
+bool strntok_context::strntok(const char* delimiters, const char** output, size_t* len)
+{
+    if(this->len == 0) return false;
+    
+    size_t tokenlen = 0;
+
+    while(this->len--)
+    {
+        if(_isDelimiter(delimiters, baseline[tokenlen]))
+        {
+            *output = baseline;
+            *len = tokenlen;
+            baseline += tokenlen + 1;
+            return true;
+        }
+        else
+            tokenlen++;
+    }
+
+    *output = baseline;
+    *len = tokenlen;
+    return true;
+}
+
+
+/*
+ Getting this result:
+ Payload length: 14
+ Token found: id=abc
+ Sub-Token found: id
+ Sub-Token found: abc
+ Sub-Token found: abc&pass
+ Sub-Token found: f
+ Sub-Token found: 
+ Sub-Token found: 
+ Sub-Token found: 
+ Sub-Token found: 
+ Sub-Token found: 
+ Sub-Token found: 
+ Sub-Token found: 
+
+ from ?id=abc&pass=f
+ */
+template <typename TFunc>
+void strntok_callback2(const char* input, size_t len, const char* delimiters,
+    TFunc callback)
+{
+    strntok_context ctx;
+    
+    ctx.baseline = input;
+    ctx.len = len;
+    
+    const char* buffer;
+    size_t buflen;
+    
+    while(ctx.strntok(delimiters, &buffer, &buflen))
+    {
+        callback(buffer, buflen);
+    }
+}
 
 template <typename TFunc>
 void strntok_callback(const char* input, size_t len, const char* delimiters,
@@ -172,6 +243,7 @@ static int handle_put_ssid(const coap_resource_t *resource,
     //char* ctx;
     //rsize_t strmax = len;
     
+    
     strntok_callback(buffer, len, "&", [](const char* token, size_t len)  
     {
         clog << "Token found: ";
@@ -183,30 +255,32 @@ static int handle_put_ssid(const coap_resource_t *resource,
         });
     });
     
-    /*
-    BoundTokenizer tokenizer(buffer, "&=", len);
-    //strtok_s(buffer, &strmax, "&=", &ctx);
-
-    uint8_t endPos = tokenizer.parseToken(len);
     
-    clog << "Token 1: (" << (uint16_t) endPos << ") ";
-    
-    for(int i = 0; i < endPos; i++)
-        clog << buffer[i];
-    
-    clog << endl;
-    
-    tokenizer.advance();
-    uint8_t endPos2 = tokenizer.parseToken(len);
-    
-    endPos2 += endPos;
-    
-    clog << "Token 2: (" << (uint16_t) endPos2 << ") ";
-    
-    for(int i = endPos; i < endPos2; i++)
-        clog << buffer[i];
-    
-    clog << endl; */
+    strntok_callback(buffer, len, "&", [](const char* token, size_t tokenlen)
+    {
+        static struct sdk_station_config config;
+        const char* key = NULL;
+        const char* value = NULL;
+        
+        strntok_callback(token, tokenlen, "=", [&](const char* token, size_t len)
+        {
+            const char** which = key ? &value : &key;
+            
+            *which = token;
+            ((char*)token)[len] = 0;
+        });
+        
+        clog << "key: " << key << "=" << value << endl;
+        
+        if(strcmp(key, "id") == 0) 
+        {
+            strcpy((char*)config.ssid, value);
+        }
+        else if(strcmp(key, "pass") == 0)
+        {
+            strcpy((char*)config.password, value);
+        }
+    });
 
     return coap_make_response(inpkt->hdr.id, &inpkt->tok,
                               COAP_TYPE_ACK, COAP_RSPCODE_CHANGED,
