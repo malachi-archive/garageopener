@@ -10,3 +10,9 @@
 [submodule "lib/util.embedded/util.embedded"]
 	path = lib/util.embedded/util.embedded
 	url = https://github.com/malachib/util.embedded.git
+[submodule "ext/coapcpp"]
+	path = ext/coapcpp
+	url = https://github.com/malachi-iot/coapcpp.git
+[submodule "ext/lwipcpp"]
+	path = ext/lwipcpp
+	url = https://github.com/malachi-iot/lwipcpp.git
