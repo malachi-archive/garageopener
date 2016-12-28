@@ -5,6 +5,7 @@ extern "C" {
 #define DEBUG
 
 #include <fact/iostream.h>
+#include <Tokenizer.h>
 
 using namespace FactUtilEmbedded::std;
 
@@ -67,6 +68,152 @@ static int handle_put_light(const coap_resource_t *resource,
                               pkt);
 }
 
+static const coap_resource_path_t path_ssid = {2, {"wifi", "ssid"}};
+
+
+class BoundTokenizer : public TokenizerInPlace
+{
+    size_t len_left;
+    
+protected:
+public:
+    BoundTokenizer(char* buffer, const char* delimiters, size_t len) : 
+        TokenizerInPlace(buffer, delimiters), len_left(len) {}
+
+    // bounded version, does not presume \0 exists.  Returns 1 char less`
+    // than other parseToken since that \0 isn't present
+    uint8_t parseToken(size_t len)
+    {
+      if(bufferPos >= len) return 0;
+
+      while((bufferPos < len) && !parse());
+      return bufferPos;
+    }
+};
+
+
+bool _isDelimiter(const char* delimiters, char input)
+{
+  const char* d = delimiters;
+
+  ASSERT(input != 0, "Input should not be zero");
+  
+  if(input == 0) return true;
+
+  while(*d)
+  {
+    if(input == *d)
+      return true;
+
+    d++;
+  }
+
+  return false;
+}
+
+
+template <typename TFunc>
+void strntok_callback(const char* input, size_t len, const char* delimiters,
+//    void (*callback)(const char* token, size_t len, void* context), void* context)
+    TFunc callback)
+{
+    const char* baseline = input;
+    size_t tokenlen = 0;
+    
+    while(len--)
+    {
+        if(_isDelimiter(delimiters, baseline[tokenlen]))
+        {
+            //callback(baseline, tokenlen, context);
+            callback(baseline, tokenlen);
+            baseline += tokenlen + 1;
+            tokenlen = 0;
+        }
+        else
+            tokenlen++;
+    }
+
+    // End of line always counts as a delimiter
+    callback(baseline, tokenlen);
+}
+
+basic_ostream<char>& delim(basic_ostream<char>& out, const char* str, int len)
+{
+    while(len--) out << *str++;
+    return out;
+}
+
+/*
+extern "C"
+{
+#include <string.h>
+}*/
+
+static int handle_put_ssid(const coap_resource_t *resource,
+                            const coap_packet_t *inpkt,
+                            coap_packet_t *pkt)
+{
+    ASSERT(inpkt->payload.len > 0, "No payload present");
+    
+    if (inpkt->payload.len == 0)
+    {
+        return coap_make_badrequest_response(inpkt, pkt);
+    }
+        
+    char* buffer = (char*)inpkt->payload.p;
+    auto len = inpkt->payload.len;
+    
+    clog << "Payload length: " << (uint16_t)len << endl;
+    
+    // FIX: for now, assume we have the '?'
+    buffer++;
+    len--;
+    
+    //char* ctx;
+    //rsize_t strmax = len;
+    
+    strntok_callback(buffer, len, "&", [](const char* token, size_t len)  
+    {
+        clog << "Token found: ";
+        delim(clog, token, len) << endl;
+        strntok_callback(token, len, "=", [](const char* token, size_t len)
+        {
+            clog << "Sub-Token found: ";
+            delim(clog, token, len) << endl;
+        });
+    });
+    
+    /*
+    BoundTokenizer tokenizer(buffer, "&=", len);
+    //strtok_s(buffer, &strmax, "&=", &ctx);
+
+    uint8_t endPos = tokenizer.parseToken(len);
+    
+    clog << "Token 1: (" << (uint16_t) endPos << ") ";
+    
+    for(int i = 0; i < endPos; i++)
+        clog << buffer[i];
+    
+    clog << endl;
+    
+    tokenizer.advance();
+    uint8_t endPos2 = tokenizer.parseToken(len);
+    
+    endPos2 += endPos;
+    
+    clog << "Token 2: (" << (uint16_t) endPos2 << ") ";
+    
+    for(int i = endPos; i < endPos2; i++)
+        clog << buffer[i];
+    
+    clog << endl; */
+
+    return coap_make_response(inpkt->hdr.id, &inpkt->tok,
+                              COAP_TYPE_ACK, COAP_RSPCODE_CHANGED,
+                              resource->content_type,
+                              (const uint8_t *)&light, 1,
+                              pkt);
+}
 
 void coapTask(void *pvParameters)
 {
@@ -84,6 +231,7 @@ void coapTask(void *pvParameters)
 coap_resource_t resources[] =
 {
     COAP_RESOURCE_WELLKNOWN(handle_get_well_known_core),
+    COAP_RESOURCE_PUT(handle_put_ssid, &path_ssid, COAP_CONTENTTYPE_TXT_PLAIN),
     COAP_RESOURCE_GET(handle_get_light, &path_light, COAP_CONTENTTYPE_TXT_PLAIN),
     {COAP_RDY, COAP_METHOD_PUT, COAP_TYPE_ACK,
         handle_put_light, &path_light,
