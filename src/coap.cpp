@@ -220,6 +220,12 @@ extern "C"
 #include <string.h>
 }*/
 
+struct KeyValuePair
+{
+    char* key;
+    char* value;
+};
+
 static int handle_put_ssid(const coap_resource_t *resource,
                             const coap_packet_t *inpkt,
                             coap_packet_t *pkt)
@@ -259,6 +265,9 @@ static int handle_put_ssid(const coap_resource_t *resource,
     strntok_callback(buffer, len, "&", [](const char* token, size_t tokenlen)
     {
         static struct sdk_station_config config;
+        //KeyValuePair tuples[2];
+        //uint8_t tupleCount = 0;
+        
         const char* key = NULL;
         const char* value = NULL;
         
@@ -267,6 +276,8 @@ static int handle_put_ssid(const coap_resource_t *resource,
             const char** which = key ? &value : &key;
             
             *which = token;
+            // FIX: This is a buffer overrun, the [len] will
+            // go one byte past the end of the buffer for the last value
             ((char*)token)[len] = 0;
         });
         
