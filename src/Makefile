@@ -7,7 +7,7 @@ PROGRAM_INC_DIR += ../ext/coapcpp
 PROGRAM_INC_DIR += ../ext/mbedtlscpp
 
 # need to yank in system CPP flags too... += doesn't seem to do that
-#CPPFLAGS += -DYACOAP_DEBUG=1
+CPPFLAGS += -DYACOAP_DEBUG=1
 PROGRAM_CPPFLAGS = $(CPPFLAGS) -DESP_OPEN_RTOS -DFEATURE_IOSTREAM_SHIM -std=c++11
 #PROGRAM_INC_DIR += $(freertos_cpp_ROOT)FreeRTOScpp
 

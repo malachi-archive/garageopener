@@ -30,18 +30,9 @@ static int handle_get_light(const coap_resource_t *resource,
                             const coap_packet_t *inpkt,
                             coap_packet_t *pkt)
 {
-    printf("handle_get_light\n");
-#ifdef COAPCPP
-    return yacoap::coap_make_content_response(inpkt, resource,
+    return coap_make_content_response(inpkt, resource,
                               (const uint8_t *)&light, 1,
                               pkt);
-#else
-    return coap_make_response(inpkt->hdr.id, &inpkt->tok,
-                              COAP_TYPE_ACK, COAP_RSPCODE_CONTENT,
-                              resource->content_type,
-                              (const uint8_t *)&light, 1,
-                              pkt);
-#endif
 }
 
 
