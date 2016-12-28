@@ -141,6 +141,7 @@ void blinkenTask(void *pvParameters)
 
 void serverTask(void *pvParameters);
 void  wifi_task(void *pvParameters);
+void coapTask(void *pvParameters);
 
 extern "C" void user_init(void)
 {
@@ -159,5 +160,7 @@ extern "C" void user_init(void)
   // Odd, if I set this to task prio 3 or higher, handshaking phase crashes and
   // restarts the device.  I'm getting the feeling LWIP is very much
   // not a thread safe situation...
-  xTaskCreate(serverTask, "web server", 2048, NULL, 2, NULL);
+  //xTaskCreate(serverTask, "web server", 2048, NULL, 2, NULL);
+  
+  xTaskCreate(coapTask, "coap server", 2048, NULL, 2, NULL);
 }
