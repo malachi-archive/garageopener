@@ -13,8 +13,12 @@ extern "C"
   #include <esp8266.h>
   #include <esp/uart.h>
   #include <stdio.h>
+}
 
+#include "MbedTLS.hpp"
 
+extern "C"
+{
     #include "lwip/err.h"
     #include "lwip/sockets.h"
     #include "lwip/sys.h"
@@ -32,8 +36,7 @@ extern "C"
 // my wrapper (and probably other stuff too)
 #undef accept
 #undef write
-
-#include "MbedTLS.hpp"
+#undef bind
 
 #include "main.h"
 

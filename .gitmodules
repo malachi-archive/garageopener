@@ -16,3 +16,6 @@
 [submodule "ext/lwipcpp"]
 	path = ext/lwipcpp
 	url = https://github.com/malachi-iot/lwipcpp.git
+[submodule "lib/YaCoAP/YaCoAP"]
+	path = lib/YaCoAP/YaCoAP
+	url = https://github.com/RIOT-Makers/YaCoAP.git
