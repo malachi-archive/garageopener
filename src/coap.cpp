@@ -2,8 +2,13 @@ extern "C" {
 #include "FreeRTOS.h"
 }
 
-#include <coap_lwip.hpp>
+#define DEBUG
+
 #include <fact/iostream.h>
+
+using namespace FactUtilEmbedded::std;
+
+#include <coap_lwip.hpp>
 #include "main.h"
 
 using namespace yacoap;
@@ -68,7 +73,7 @@ void coapTask(void *pvParameters)
     clog << "COAP waiting for WiFi..." << endl;
     
     wifi_alive.take();
-
+    
     for(;;)
     {
         coapServer.handler();
